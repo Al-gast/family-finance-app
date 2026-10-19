@@ -1,0 +1,17 @@
+{
+  "name": "family-finance-app",
+  "private": true,
+  "version": "0.0.0",
+  "packageManager": "pnpm@9.4.0",
+  "engines": {
+    "node": ">=20.19.0"
+  },
+  "scripts": {
+    "build": "pnpm --filter @family-finance/web build",
+    "dev": "pnpm --filter @family-finance/web dev",
+    "lint": "pnpm --filter @family-finance/web lint",
+    "test": "pnpm --filter @family-finance/web test",
+    "typecheck": "pnpm --filter @family-finance/web typecheck"
+  }
+}
+
