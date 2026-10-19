@@ -2,7 +2,16 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "family-finance-app",
   "main": "src/worker/index.ts",
-  "compatibility_date": "2026-10-19",
+  "compatibility_date": "2026-10-12",
+  "compatibility_flags": ["nodejs_compat"],
+  "hyperdrive": [
+    {
+      // This ID is non-secret. The referenced Hyperdrive configuration must keep
+      // query caching disabled. Never put a connection URL in this file.
+      "binding": "DB_FRESH",
+      "id": "81878ca8fecb49f1a15a5ea3833c94ab"
+    }
+  ],
   "assets": {
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/health", "/api/*"]

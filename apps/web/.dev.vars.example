@@ -1,0 +1,5 @@
+# Copy this file to .dev.vars, replace the placeholders, then load it into
+# your shell before local database commands. .dev.vars is ignored by Git.
+DATABASE_URL="<NEON_DEVELOPMENT_CONNECTION_URL>"
+CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_DB_FRESH="<NEON_DEVELOPMENT_CONNECTION_URL>"
+

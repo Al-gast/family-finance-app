@@ -7,11 +7,13 @@
     "node": ">=20.19.0"
   },
   "scripts": {
-    "build": "pnpm --filter @family-finance/web build",
+    "build": "pnpm --filter @family-finance/db build && pnpm --filter @family-finance/web build",
+    "db:check": "pnpm --filter @family-finance/db test:integration",
+    "db:migrate": "pnpm --filter @family-finance/db db:migrate",
     "dev": "pnpm --filter @family-finance/web dev",
-    "lint": "pnpm --filter @family-finance/web lint",
-    "test": "pnpm --filter @family-finance/web test",
-    "typecheck": "pnpm --filter @family-finance/web typecheck"
+    "lint": "pnpm --filter @family-finance/db lint && pnpm --filter @family-finance/web lint",
+    "test": "pnpm --filter @family-finance/db test && pnpm --filter @family-finance/web test",
+    "typecheck": "pnpm --filter @family-finance/db typecheck && pnpm --filter @family-finance/web typecheck"
   }
 }
 
