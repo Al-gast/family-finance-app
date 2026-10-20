@@ -6,4 +6,5 @@ export {
   type DatabaseConnectionSource,
   type DatabaseOperation,
 } from './client'
+export * from './schema'
 

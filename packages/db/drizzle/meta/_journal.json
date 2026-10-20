@@ -8,6 +8,20 @@
       "when": 1792430021491,
       "tag": "0000_m0_baseline",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792434540638,
+      "tag": "0001_m1_financial_schema",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792434688023,
+      "tag": "0002_m1_cycle_non_overlap",
+      "breakpoints": true
     }
   ]
 }

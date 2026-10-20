@@ -13,6 +13,7 @@
     "lint": "eslint .",
     "test": "vitest run --config vitest.config.ts",
     "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:m0.4": "vitest run --config vitest.integration.config.ts test/database.integration.test.ts --testTimeout=60000 --hookTimeout=60000",
     "typecheck": "tsc -b"
   },
   "devDependencies": {

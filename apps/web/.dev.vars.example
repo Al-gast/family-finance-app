@@ -3,3 +3,10 @@
 DATABASE_URL="<NEON_DEVELOPMENT_CONNECTION_URL>"
 CLOUDFLARE_HYPERDRIVE_LOCAL_CONNECTION_STRING_DB_FRESH="<NEON_DEVELOPMENT_CONNECTION_URL>"
 
+# Copy these exact values from the Managed Auth configuration for the same Neon
+# branch. Do not infer them from examples. The audience is optional and should
+# be set only when the issued JWT includes an aud claim.
+NEON_AUTH_JWKS_URL="<NEON_MANAGED_AUTH_JWKS_URL>"
+NEON_AUTH_ISSUER="<NEON_MANAGED_AUTH_TOKEN_ISSUER>"
+# NEON_AUTH_AUDIENCE="<NEON_MANAGED_AUTH_TOKEN_AUDIENCE>"
+

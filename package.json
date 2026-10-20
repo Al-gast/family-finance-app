@@ -10,6 +10,7 @@
     "build": "pnpm --filter @family-finance/db build && pnpm --filter @family-finance/web build",
     "db:check": "pnpm --filter @family-finance/db test:integration",
     "db:migrate": "pnpm --filter @family-finance/db db:migrate",
+    "db:verify:m0.4": "pnpm --filter @family-finance/db test:m0.4",
     "dev": "pnpm --filter @family-finance/web dev",
     "lint": "pnpm --filter @family-finance/db lint && pnpm --filter @family-finance/web lint",
     "test": "pnpm --filter @family-finance/db test && pnpm --filter @family-finance/web test",

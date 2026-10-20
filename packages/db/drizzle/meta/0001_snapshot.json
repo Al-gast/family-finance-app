@@ -1,0 +1,1485 @@
+{
+  "id": "e43eaf5c-032a-4f3e-82c8-4cf0f4ca28a5",
+  "prevId": "1e0c2fec-26f7-4dc2-b052-d34a400b3ec2",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.bill_occurrences": {
+      "name": "bill_occurrences",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "family_id": {
+          "name": "family_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recurring_bill_id": {
+          "name": "recurring_bill_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "due_on": {
+          "name": "due_on",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount_idr": {
+          "name": "amount_idr",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "bill_occurrence_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'unpaid'"
+        },
+        "paid_transaction_id": {
+          "name": "paid_transaction_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "bill_occurrences_recurring_due_unique": {
+          "name": "bill_occurrences_recurring_due_unique",
+          "columns": [
+            {
+              "expression": "recurring_bill_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "due_on",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"bill_occurrences\".\"recurring_bill_id\" is not null",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "bill_occurrences_family_status_due_idx": {
+          "name": "bill_occurrences_family_status_due_idx",
+          "columns": [
+            {
+              "expression": "family_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "due_on",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "bill_occurrences_family_id_families_id_fk": {
+          "name": "bill_occurrences_family_id_families_id_fk",
+          "tableFrom": "bill_occurrences",
+          "tableTo": "families",
+          "columnsFrom": [
+            "family_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "bill_occurrences_family_recurring_bill_fk": {
+          "name": "bill_occurrences_family_recurring_bill_fk",
+          "tableFrom": "bill_occurrences",
+          "tableTo": "recurring_bills",
+          "columnsFrom": [
+            "family_id",
+            "recurring_bill_id"
+          ],
+          "columnsTo": [
+            "family_id",
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "bill_occurrences_paid_transaction_fk": {
+          "name": "bill_occurrences_paid_transaction_fk",
+          "tableFrom": "bill_occurrences",
+          "tableTo": "transactions",
+          "columnsFrom": [
+            "family_id",
+            "id",
+            "paid_transaction_id"
+          ],
+          "columnsTo": [
+            "family_id",
+            "bill_occurrence_id",
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "bill_occurrences_family_id_id_unique": {
+          "name": "bill_occurrences_family_id_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "family_id",
+            "id"
+          ]
+        },
+        "bill_occurrences_paid_transaction_unique": {
+          "name": "bill_occurrences_paid_transaction_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "paid_transaction_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "bill_occurrences_name_not_blank_check": {
+          "name": "bill_occurrences_name_not_blank_check",
+          "value": "btrim(\"bill_occurrences\".\"name\") <> ''"
+        },
+        "bill_occurrences_amount_positive_check": {
+          "name": "bill_occurrences_amount_positive_check",
+          "value": "\"bill_occurrences\".\"amount_idr\" > 0"
+        },
+        "bill_occurrences_payment_state_check": {
+          "name": "bill_occurrences_payment_state_check",
+          "value": "(\n        \"bill_occurrences\".\"status\" = 'paid' and \"bill_occurrences\".\"paid_transaction_id\" is not null\n      ) or (\n        \"bill_occurrences\".\"status\" = 'unpaid' and \"bill_occurrences\".\"paid_transaction_id\" is null\n      )"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.budget_lines": {
+      "name": "budget_lines",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "family_id": {
+          "name": "family_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cycle_id": {
+          "name": "cycle_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "allocated_idr": {
+          "name": "allocated_idr",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "budget_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'essential'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "budget_lines_family_cycle_label_unique": {
+          "name": "budget_lines_family_cycle_label_unique",
+          "columns": [
+            {
+              "expression": "family_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "cycle_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "lower(\"label\")",
+              "asc": true,
+              "isExpression": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "budget_lines_family_cycle_idx": {
+          "name": "budget_lines_family_cycle_idx",
+          "columns": [
+            {
+              "expression": "family_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "cycle_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "budget_lines_family_id_families_id_fk": {
+          "name": "budget_lines_family_id_families_id_fk",
+          "tableFrom": "budget_lines",
+          "tableTo": "families",
+          "columnsFrom": [
+            "family_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "budget_lines_family_cycle_fk": {
+          "name": "budget_lines_family_cycle_fk",
+          "tableFrom": "budget_lines",
+          "tableTo": "financial_cycles",
+          "columnsFrom": [
+            "family_id",
+            "cycle_id"
+          ],
+          "columnsTo": [
+            "family_id",
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "budget_lines_family_id_id_unique": {
+          "name": "budget_lines_family_id_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "family_id",
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "budget_lines_label_not_blank_check": {
+          "name": "budget_lines_label_not_blank_check",
+          "value": "btrim(\"budget_lines\".\"label\") <> ''"
+        },
+        "budget_lines_allocated_nonnegative_check": {
+          "name": "budget_lines_allocated_nonnegative_check",
+          "value": "\"budget_lines\".\"allocated_idr\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.categories": {
+      "name": "categories",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "family_id": {
+          "name": "family_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "category_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "categories_family_kind_active_idx": {
+          "name": "categories_family_kind_active_idx",
+          "columns": [
+            {
+              "expression": "family_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "kind",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "active",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "categories_family_id_families_id_fk": {
+          "name": "categories_family_id_families_id_fk",
+          "tableFrom": "categories",
+          "tableTo": "families",
+          "columnsFrom": [
+            "family_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "categories_family_id_id_unique": {
+          "name": "categories_family_id_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "family_id",
+            "id"
+          ]
+        },
+        "categories_family_code_unique": {
+          "name": "categories_family_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "family_id",
+            "code"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "categories_code_format_check": {
+          "name": "categories_code_format_check",
+          "value": "\"categories\".\"code\" ~ '^[a-z][a-z0-9_]*$'"
+        },
+        "categories_label_not_blank_check": {
+          "name": "categories_label_not_blank_check",
+          "value": "btrim(\"categories\".\"label\") <> ''"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.families": {
+      "name": "families",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "family_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending_payment'"
+        },
+        "payday_day": {
+          "name": "payday_day",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "protected_reserve_idr": {
+          "name": "protected_reserve_idr",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "0"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "families_name_not_blank_check": {
+          "name": "families_name_not_blank_check",
+          "value": "btrim(\"families\".\"name\") <> ''"
+        },
+        "families_payday_day_check": {
+          "name": "families_payday_day_check",
+          "value": "\"families\".\"payday_day\" is null or \"families\".\"payday_day\" between 1 and 31"
+        },
+        "families_active_payday_check": {
+          "name": "families_active_payday_check",
+          "value": "\"families\".\"status\" <> 'active' or \"families\".\"payday_day\" is not null"
+        },
+        "families_protected_reserve_nonnegative_check": {
+          "name": "families_protected_reserve_nonnegative_check",
+          "value": "\"families\".\"protected_reserve_idr\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.family_accounts": {
+      "name": "family_accounts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "family_id": {
+          "name": "family_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "balance_idr": {
+          "name": "balance_idr",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "0"
+        },
+        "version": {
+          "name": "version",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "0"
+        },
+        "last_reconciled_at": {
+          "name": "last_reconciled_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "family_accounts_family_id_families_id_fk": {
+          "name": "family_accounts_family_id_families_id_fk",
+          "tableFrom": "family_accounts",
+          "tableTo": "families",
+          "columnsFrom": [
+            "family_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "family_accounts_family_id_unique": {
+          "name": "family_accounts_family_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "family_id"
+          ]
+        },
+        "family_accounts_family_id_id_unique": {
+          "name": "family_accounts_family_id_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "family_id",
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "family_accounts_balance_nonnegative_check": {
+          "name": "family_accounts_balance_nonnegative_check",
+          "value": "\"family_accounts\".\"balance_idr\" >= 0"
+        },
+        "family_accounts_version_nonnegative_check": {
+          "name": "family_accounts_version_nonnegative_check",
+          "value": "\"family_accounts\".\"version\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.financial_cycles": {
+      "name": "financial_cycles",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "family_id": {
+          "name": "family_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "starts_on": {
+          "name": "starts_on",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "next_payday_on": {
+          "name": "next_payday_on",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "financial_cycle_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'active'"
+        },
+        "budget_reviewed_at": {
+          "name": "budget_reviewed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "financial_cycles_one_active_per_family_idx": {
+          "name": "financial_cycles_one_active_per_family_idx",
+          "columns": [
+            {
+              "expression": "family_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"financial_cycles\".\"status\" = 'active'",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "financial_cycles_family_next_payday_idx": {
+          "name": "financial_cycles_family_next_payday_idx",
+          "columns": [
+            {
+              "expression": "family_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "next_payday_on",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "financial_cycles_family_id_families_id_fk": {
+          "name": "financial_cycles_family_id_families_id_fk",
+          "tableFrom": "financial_cycles",
+          "tableTo": "families",
+          "columnsFrom": [
+            "family_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "financial_cycles_family_id_id_unique": {
+          "name": "financial_cycles_family_id_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "family_id",
+            "id"
+          ]
+        },
+        "financial_cycles_family_starts_unique": {
+          "name": "financial_cycles_family_starts_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "family_id",
+            "starts_on"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "financial_cycles_period_check": {
+          "name": "financial_cycles_period_check",
+          "value": "\"financial_cycles\".\"starts_on\" < \"financial_cycles\".\"next_payday_on\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.financial_mutations": {
+      "name": "financial_mutations",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "family_id": {
+          "name": "family_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "actor_auth_user_id": {
+          "name": "actor_auth_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "idempotency_key": {
+          "name": "idempotency_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "request_hash": {
+          "name": "request_hash",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "result_type": {
+          "name": "result_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "result_id": {
+          "name": "result_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "financial_mutations_family_created_idx": {
+          "name": "financial_mutations_family_created_idx",
+          "columns": [
+            {
+              "expression": "family_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "financial_mutations_family_id_families_id_fk": {
+          "name": "financial_mutations_family_id_families_id_fk",
+          "tableFrom": "financial_mutations",
+          "tableTo": "families",
+          "columnsFrom": [
+            "family_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "financial_mutations_family_key_unique": {
+          "name": "financial_mutations_family_key_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "family_id",
+            "idempotency_key"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "financial_mutations_actor_not_blank_check": {
+          "name": "financial_mutations_actor_not_blank_check",
+          "value": "btrim(\"financial_mutations\".\"actor_auth_user_id\") <> ''"
+        },
+        "financial_mutations_key_not_blank_check": {
+          "name": "financial_mutations_key_not_blank_check",
+          "value": "btrim(\"financial_mutations\".\"idempotency_key\") <> ''"
+        },
+        "financial_mutations_request_hash_not_blank_check": {
+          "name": "financial_mutations_request_hash_not_blank_check",
+          "value": "btrim(\"financial_mutations\".\"request_hash\") <> ''"
+        },
+        "financial_mutations_result_type_not_blank_check": {
+          "name": "financial_mutations_result_type_not_blank_check",
+          "value": "btrim(\"financial_mutations\".\"result_type\") <> ''"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.recurring_bills": {
+      "name": "recurring_bills",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "family_id": {
+          "name": "family_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount_idr": {
+          "name": "amount_idr",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "due_day": {
+          "name": "due_day",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "recurring_bills_family_active_idx": {
+          "name": "recurring_bills_family_active_idx",
+          "columns": [
+            {
+              "expression": "family_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "active",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "recurring_bills_family_id_families_id_fk": {
+          "name": "recurring_bills_family_id_families_id_fk",
+          "tableFrom": "recurring_bills",
+          "tableTo": "families",
+          "columnsFrom": [
+            "family_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "recurring_bills_family_id_id_unique": {
+          "name": "recurring_bills_family_id_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "family_id",
+            "id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "recurring_bills_name_not_blank_check": {
+          "name": "recurring_bills_name_not_blank_check",
+          "value": "btrim(\"recurring_bills\".\"name\") <> ''"
+        },
+        "recurring_bills_amount_positive_check": {
+          "name": "recurring_bills_amount_positive_check",
+          "value": "\"recurring_bills\".\"amount_idr\" > 0"
+        },
+        "recurring_bills_due_day_check": {
+          "name": "recurring_bills_due_day_check",
+          "value": "\"recurring_bills\".\"due_day\" between 1 and 31"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.transactions": {
+      "name": "transactions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "family_id": {
+          "name": "family_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cycle_id": {
+          "name": "cycle_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category_id": {
+          "name": "category_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "occurred_on": {
+          "name": "occurred_on",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "transaction_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expense_type": {
+          "name": "expense_type",
+          "type": "transaction_expense_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "delta_idr": {
+          "name": "delta_idr",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "budget_line_id": {
+          "name": "budget_line_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bill_occurrence_id": {
+          "name": "bill_occurrence_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reversal_of_id": {
+          "name": "reversal_of_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reversed_at": {
+          "name": "reversed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "note": {
+          "name": "note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by_auth_user_id": {
+          "name": "created_by_auth_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "transactions_family_occurred_created_idx": {
+          "name": "transactions_family_occurred_created_idx",
+          "columns": [
+            {
+              "expression": "family_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "occurred_on",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "transactions_family_cycle_idx": {
+          "name": "transactions_family_cycle_idx",
+          "columns": [
+            {
+              "expression": "family_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "cycle_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "transactions_family_category_idx": {
+          "name": "transactions_family_category_idx",
+          "columns": [
+            {
+              "expression": "family_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "category_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "transactions_family_id_families_id_fk": {
+          "name": "transactions_family_id_families_id_fk",
+          "tableFrom": "transactions",
+          "tableTo": "families",
+          "columnsFrom": [
+            "family_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "transactions_family_account_fk": {
+          "name": "transactions_family_account_fk",
+          "tableFrom": "transactions",
+          "tableTo": "family_accounts",
+          "columnsFrom": [
+            "family_id",
+            "account_id"
+          ],
+          "columnsTo": [
+            "family_id",
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "transactions_family_cycle_fk": {
+          "name": "transactions_family_cycle_fk",
+          "tableFrom": "transactions",
+          "tableTo": "financial_cycles",
+          "columnsFrom": [
+            "family_id",
+            "cycle_id"
+          ],
+          "columnsTo": [
+            "family_id",
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "transactions_family_category_fk": {
+          "name": "transactions_family_category_fk",
+          "tableFrom": "transactions",
+          "tableTo": "categories",
+          "columnsFrom": [
+            "family_id",
+            "category_id"
+          ],
+          "columnsTo": [
+            "family_id",
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "transactions_family_budget_line_fk": {
+          "name": "transactions_family_budget_line_fk",
+          "tableFrom": "transactions",
+          "tableTo": "budget_lines",
+          "columnsFrom": [
+            "family_id",
+            "budget_line_id"
+          ],
+          "columnsTo": [
+            "family_id",
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "transactions_bill_occurrence_fk": {
+          "name": "transactions_bill_occurrence_fk",
+          "tableFrom": "transactions",
+          "tableTo": "bill_occurrences",
+          "columnsFrom": [
+            "family_id",
+            "bill_occurrence_id"
+          ],
+          "columnsTo": [
+            "family_id",
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        },
+        "transactions_reversal_of_fk": {
+          "name": "transactions_reversal_of_fk",
+          "tableFrom": "transactions",
+          "tableTo": "transactions",
+          "columnsFrom": [
+            "family_id",
+            "account_id",
+            "reversal_of_id"
+          ],
+          "columnsTo": [
+            "family_id",
+            "account_id",
+            "id"
+          ],
+          "onDelete": "restrict",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "transactions_family_account_id_unique": {
+          "name": "transactions_family_account_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "family_id",
+            "account_id",
+            "id"
+          ]
+        },
+        "transactions_family_bill_id_unique": {
+          "name": "transactions_family_bill_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "family_id",
+            "bill_occurrence_id",
+            "id"
+          ]
+        },
+        "transactions_reversal_of_unique": {
+          "name": "transactions_reversal_of_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "reversal_of_id"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "transactions_created_by_not_blank_check": {
+          "name": "transactions_created_by_not_blank_check",
+          "value": "btrim(\"transactions\".\"created_by_auth_user_id\") <> ''"
+        },
+        "transactions_delta_shape_check": {
+          "name": "transactions_delta_shape_check",
+          "value": "(\n        \"transactions\".\"kind\" in ('opening_balance', 'income')\n        and \"transactions\".\"delta_idr\" > 0\n        and \"transactions\".\"expense_type\" is null\n      ) or (\n        \"transactions\".\"kind\" = 'expense'\n        and \"transactions\".\"delta_idr\" < 0\n        and \"transactions\".\"expense_type\" is not null\n      ) or (\n        \"transactions\".\"kind\" in ('reconciliation', 'reversal')\n        and \"transactions\".\"delta_idr\" <> 0\n        and \"transactions\".\"expense_type\" is null\n      )"
+        },
+        "transactions_category_link_check": {
+          "name": "transactions_category_link_check",
+          "value": "(\n        \"transactions\".\"kind\" in ('income', 'expense')\n        and \"transactions\".\"category_id\" is not null\n      ) or (\n        \"transactions\".\"kind\" not in ('income', 'expense')\n        and \"transactions\".\"category_id\" is null\n      )"
+        },
+        "transactions_expense_links_check": {
+          "name": "transactions_expense_links_check",
+          "value": "(\n        \"transactions\".\"expense_type\" = 'essential'\n        and \"transactions\".\"budget_line_id\" is not null\n        and \"transactions\".\"bill_occurrence_id\" is null\n      ) or (\n        \"transactions\".\"expense_type\" = 'bill'\n        and \"transactions\".\"budget_line_id\" is null\n        and \"transactions\".\"bill_occurrence_id\" is not null\n      ) or (\n        \"transactions\".\"expense_type\" = 'discretionary'\n        and \"transactions\".\"budget_line_id\" is null\n        and \"transactions\".\"bill_occurrence_id\" is null\n      ) or (\n        \"transactions\".\"expense_type\" is null\n        and \"transactions\".\"budget_line_id\" is null\n        and \"transactions\".\"bill_occurrence_id\" is null\n      )"
+        },
+        "transactions_reversal_link_check": {
+          "name": "transactions_reversal_link_check",
+          "value": "(\"transactions\".\"kind\" = 'reversal') = (\"transactions\".\"reversal_of_id\" is not null)"
+        },
+        "transactions_reversal_not_self_check": {
+          "name": "transactions_reversal_not_self_check",
+          "value": "\"transactions\".\"reversal_of_id\" is null or \"transactions\".\"id\" <> \"transactions\".\"reversal_of_id\""
+        }
+      },
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.bill_occurrence_status": {
+      "name": "bill_occurrence_status",
+      "schema": "public",
+      "values": [
+        "unpaid",
+        "paid"
+      ]
+    },
+    "public.budget_kind": {
+      "name": "budget_kind",
+      "schema": "public",
+      "values": [
+        "essential"
+      ]
+    },
+    "public.category_kind": {
+      "name": "category_kind",
+      "schema": "public",
+      "values": [
+        "income",
+        "expense"
+      ]
+    },
+    "public.family_status": {
+      "name": "family_status",
+      "schema": "public",
+      "values": [
+        "pending_payment",
+        "pending_setup",
+        "active",
+        "suspended"
+      ]
+    },
+    "public.financial_cycle_status": {
+      "name": "financial_cycle_status",
+      "schema": "public",
+      "values": [
+        "active",
+        "closed"
+      ]
+    },
+    "public.transaction_expense_type": {
+      "name": "transaction_expense_type",
+      "schema": "public",
+      "values": [
+        "essential",
+        "bill",
+        "discretionary"
+      ]
+    },
+    "public.transaction_kind": {
+      "name": "transaction_kind",
+      "schema": "public",
+      "values": [
+        "opening_balance",
+        "income",
+        "expense",
+        "reconciliation",
+        "reversal"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
