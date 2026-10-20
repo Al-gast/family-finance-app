@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "build": "tsc -b && vite build",
+    "build:local": "tsc -b && FAMILY_FINANCE_RELEASE=local vite build",
     "build:validation": "tsc -b && FAMILY_FINANCE_RELEASE=validation vite build",
     "dev": "vite",
+    "dev:local": "FAMILY_FINANCE_RELEASE=local vite",
     "dev:validation": "FAMILY_FINANCE_RELEASE=validation vite",
     "lint": "eslint .",
     "preview": "vite preview",

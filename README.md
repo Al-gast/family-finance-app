@@ -186,6 +186,21 @@ pnpm --filter @family-finance/web exec wrangler deploy --dry-run
 This build keeps `/`, `/demo`, and `/health`; private and unfinished routes
 return `404`. It always uses the honest unconfigured early-access state.
 
+## Usable local MVP v0.2
+
+The single-device application is available at `/app` in the local release. It
+uses IndexedDB and does not require login, database connectivity, or payments.
+Its temporary scope and data-safety limitations are documented in
+`docs/USABLE_MVP_V0.2.md`.
+
+```sh
+pnpm --filter @family-finance/web dev:local
+pnpm --filter @family-finance/web build:local
+```
+
+The local build uses a no-binding Worker that keeps `/health` and disables
+`/auth` plus `/api/*`. It does not deploy automatically.
+
 ## M1.1 financial schema
 
 The versioned M1.1 migrations are `packages/db/drizzle/0001_m1_financial_schema.sql` and `packages/db/drizzle/0002_m1_cycle_non_overlap.sql`. The second is a Drizzle custom migration because PostgreSQL exclusion constraints are not represented by Drizzle's table API. Application startup and tests never apply these files to the application schema automatically. Review the SQL and select the intended environment explicitly before running the controlled migration command:

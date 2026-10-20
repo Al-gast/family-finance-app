@@ -63,6 +63,9 @@ function LandingPage() {
                 Coba “Boleh Checkout?”
                 <span aria-hidden="true">→</span>
               </a>
+              <a className="action action-outline" href="/app">
+                Buka aplikasi lokal v0.2
+              </a>
               <span className="quiet-note">Gratis · tanpa login · data tidak dikirim</span>
             </div>
           </div>

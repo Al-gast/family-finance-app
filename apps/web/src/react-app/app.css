@@ -197,6 +197,16 @@ input:focus-visible {
   padding: 0 21px;
 }
 
+.action-outline {
+  color: #14594d;
+  border: 1px solid #abc8bd;
+  background: transparent;
+}
+
+.action-outline:hover {
+  background: #e8f1ed;
+}
+
 .action:disabled {
   cursor: wait;
   opacity: 0.65;
